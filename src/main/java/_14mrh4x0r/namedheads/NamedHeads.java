@@ -1,37 +1,21 @@
-/* NamedHeads, a Minecraft mod that shows names above player heads
- * Copyright (C) 2014 Willem Mulder
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package _14mrh4x0r.namedheads;
 
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntitySkull;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -39,7 +23,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class NamedHeads {
 	public static final String MODID = "namedheads";
-	public static final String VERSION = "0.1.1";
+	public static final String VERSION = "0.2.2";
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
@@ -47,17 +31,19 @@ public class NamedHeads {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	@ForgeSubscribe(receiveCanceled = false)
+	@SubscribeEvent(receiveCanceled = false)
 	public void onDrawBlockHighlight(DrawBlockHighlightEvent event) {
 		int x = event.target.blockX, y = event.target.blockY, z = event.target.blockZ;
-		WorldClient world = event.context.theWorld;
-		if (world.getBlockId(x, y, z) == Block.skull.blockID) {
-			TileEntitySkull skull = (TileEntitySkull) world.getBlockTileEntity(x, y, z);
-			if (skull.getSkullType() == 3) {
+		WorldClient world = Minecraft.getMinecraft().theWorld;
+		if (world.getBlock(x, y, z) == Blocks.skull) {
+			TileEntitySkull skull = (TileEntitySkull) world.getTileEntity(x, y, z);
+			if (skull.func_145904_a() == 3) {
 				AxisAlignedBB aabb = skull.getRenderBoundingBox();
-				drawLabel(skull.getExtraType(), (aabb.maxX + aabb.minX) / 2 - event.player.posX,
-												(aabb.maxY + aabb.minY) / 2 - event.player.posY,
-												(aabb.maxZ + aabb.minZ) / 2 - event.player.posZ);
+				if (skull.func_152108_a() != null)
+				{
+					String s = skull.func_152108_a().getName();
+					drawLabel(s, (aabb.maxX + aabb.minX) / 2 - event.player.posX, (aabb.maxY + aabb.minY) / 2 - event.player.posY - 0.3D, (aabb.maxZ + aabb.minZ) / 2 - event.player.posZ);
+				}
 			}
 		}
 	}
